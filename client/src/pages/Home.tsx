@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import CodeEditor from "@/components/CodeEditor";
 import LanguageSelect from "@/components/LanguageSelect";
 import OutputDisplay from "@/components/OutputDisplay";
@@ -8,14 +10,23 @@ import { executeCode } from "@/lib/interpreters";
 import { loadCode, saveCode } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Play, Save } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Play, Save, Share } from "lucide-react";
 import { motion } from "framer-motion";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0].id);
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const savedCode = loadCode(selectedLanguage);
@@ -46,6 +57,45 @@ export default function Home() {
       title: "Saved",
       description: "Your code has been saved locally"
     });
+  };
+
+  const shareMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/share', {
+        language: selectedLanguage,
+        code,
+        title,
+        description
+      });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setShareDialogOpen(false);
+      setLocation(`/share/${data.shareId}`);
+      toast({
+        title: "Shared Successfully",
+        description: "Your code has been shared and can now be accessed via URL"
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Share Error",
+        description: error.message
+      });
+    }
+  });
+
+  const handleShare = () => {
+    if (!title) {
+      toast({
+        variant: "destructive",
+        title: "Title Required",
+        description: "Please provide a title for your code"
+      });
+      return;
+    }
+    shareMutation.mutate();
   };
 
   return (
@@ -91,6 +141,15 @@ export default function Home() {
                 <Save className="w-4 h-4" />
                 Save
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShareDialogOpen(true)}
+                className="gap-2"
+                size="lg"
+              >
+                <Share className="w-4 h-4" />
+                Share
+              </Button>
             </div>
 
             <Card className="p-0 overflow-hidden border-2 transition-colors hover:border-primary/50">
@@ -116,6 +175,51 @@ export default function Home() {
           </motion.div>
         </div>
       </div>
+
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share Code</DialogTitle>
+            <DialogDescription>
+              Share your code with others. They'll be able to view and run it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter a title for your code"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description (optional)</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Add a description"
+              />
+            </div>
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setShareDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleShare}
+                disabled={shareMutation.isPending}
+              >
+                {shareMutation.isPending ? "Sharing..." : "Share"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
