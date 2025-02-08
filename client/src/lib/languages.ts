@@ -15,7 +15,8 @@ export const languages = [
   {
     id: "ook",
     name: "Ook!",
-    example: `Ook. Ook? Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook.`,
+    example: `Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook. Ook.
+Ook. Ook. Ook. Ook. Ook! Ook? Ook! Ook! Ook. Ook?`,
     tokenizer: {
       tokenizer: {
         root: [
@@ -35,7 +36,7 @@ KTHXBYE`,
     tokenizer: {
       tokenizer: {
         root: [
-          [/HAI|KTHXBYE|CAN HAS|VISIBLE/, "keyword"],
+          [/HAI|KTHXBYE|CAN HAS|VISIBLE|I HAS A|ITZ|GIMMEH|BOTH SAEM/, "keyword"],
           [/"[^"]*"/, "string"],
           [/[A-Za-z][A-Za-z0-9_]*/, "variable"],
         ],
@@ -45,19 +46,12 @@ KTHXBYE`,
   {
     id: "whitespace",
     name: "Whitespace",
-    example: `   	  	   
-	
-     		  	 	
-	
-     		 		  
-	
-     		 		  
-	
-     		 				
-	
-     	     
-	
-  `,
+    example: `   \t  \t   
+\t
+   \t\t  \t \t
+\t
+   \t\t \t\t  
+\t`,
     tokenizer: {
       tokenizer: {
         root: [
@@ -79,6 +73,48 @@ KTHXBYE`,
           [/[0-9]/, "number"],
           [/[",.!@]/, "string"],
           [/[+\-*\/%]/, "operator"],
+        ],
+      },
+    },
+  },
+  {
+    id: "cow",
+    name: "COW",
+    example: `MoO MoO MoO MoO MoO MoO MoO MoO MOO moO MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo MOo mOo MOo mOo MOo moo moO MOO mOo MoO moO`,
+    tokenizer: {
+      tokenizer: {
+        root: [
+          [/[Mm][Oo][Oo]/, "keyword"],
+          [/[^MmOo\s]+/, "comment"],
+        ],
+      },
+    },
+  },
+  {
+    id: "arnoldc",
+    name: "ArnoldC",
+    example: `IT'S SHOWTIME
+TALK TO THE HAND "Hello, World!"
+YOU HAVE BEEN TERMINATED`,
+    tokenizer: {
+      tokenizer: {
+        root: [
+          [/IT'S SHOWTIME|TALK TO THE HAND|YOU HAVE BEEN TERMINATED/, "keyword"],
+          [/"[^"]*"/, "string"],
+          [/[A-Za-z][A-Za-z0-9_\s]*/, "variable"],
+        ],
+      },
+    },
+  },
+  {
+    id: "hq9plus",
+    name: "HQ9+",
+    example: `H`,
+    tokenizer: {
+      tokenizer: {
+        root: [
+          [/[HQ9+]/, "keyword"],
+          [/[^HQ9+\s]+/, "comment"],
         ],
       },
     },
