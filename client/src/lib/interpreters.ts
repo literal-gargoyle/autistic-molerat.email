@@ -114,8 +114,10 @@ function executeBrainfuck(code: string): string {
   return output;
 }
 
-// Enhanced Ook! interpreter with proper error handling
+// Enhanced Ook! interpreter with proper parsing and error handling
 function executeOok(code: string): string {
+  // Clean up whitespace and normalize Ook instructions
+  const normalizedCode = code.replace(/\s+/g, ' ').trim();
   const ookToBf: Record<string, string> = {
     "Ook. Ook?": ">",
     "Ook? Ook.": "<",
@@ -128,14 +130,18 @@ function executeOok(code: string): string {
   };
 
   let bf = "";
-  const matches = code.match(/Ook[\.\?\!]\s+Ook[\.\?\!]/g) || [];
+  const tokens = normalizedCode.match(/Ook[\.!\?]\s*Ook[\.!\?]/g) || [];
 
-  for (const match of matches) {
-    const instruction = ookToBf[match];
-    if (instruction === undefined) {
-      throw new Error(`Invalid Ook! instruction: ${match}`);
+  for (const token of tokens) {
+    const normalizedToken = token.replace(/\s+/g, ' ');
+    if (!ookToBf[normalizedToken]) {
+      throw new Error(`Invalid Ook! instruction: ${token}`);
     }
-    bf += instruction;
+    bf += ookToBf[normalizedToken];
+  }
+
+  if (!bf) {
+    throw new Error("No valid Ook! instructions found");
   }
 
   return executeBrainfuck(bf);
@@ -250,14 +256,15 @@ function executeWhitespace(code: string): string {
   return output || "Whitespace execution complete\n";
 }
 
-// Enhanced Befunge interpreter with full instruction set
+// Enhanced Befunge interpreter with proper stack and grid operations
 function executeBefunge(code: string): string {
-  const width = Math.max(...code.split("\n").map(line => line.length));
-  const height = code.split("\n").length;
-  const grid = Array(height).fill(0).map(() => Array(width).fill(" "));
+  const lines = code.split('\n');
+  const width = Math.max(...lines.map(line => line.length));
+  const height = lines.length;
+  const grid: string[][] = Array(height).fill(0).map(() => Array(width).fill(' '));
 
   // Load program into grid
-  code.split("\n").forEach((line, y) => {
+  lines.forEach((line, y) => {
     [...line].forEach((char, x) => {
       grid[y][x] = char;
     });
@@ -265,21 +272,21 @@ function executeBefunge(code: string): string {
 
   let x = 0, y = 0;
   let dx = 1, dy = 0;
-  let output = "";
   const stack: number[] = [];
+  let output = "";
   let stringMode = false;
-
-  const MAX_STEPS = 100000; // Prevent infinite loops
+  const maxSteps = 100000;
   let steps = 0;
 
-  while (steps < MAX_STEPS) {
-    if (y < 0 || y >= height || x < 0 || x >= width) {
-      break;
-    }
+  while (steps < maxSteps) {
+    if (y < 0) y = height - 1;
+    if (y >= height) y = 0;
+    if (x < 0) x = width - 1;
+    if (x >= width) x = 0;
 
     const char = grid[y][x];
 
-    if (char === "@") break;
+    if (char === '@') break;
 
     if (stringMode) {
       if (char === '"') {
@@ -289,102 +296,75 @@ function executeBefunge(code: string): string {
       }
     } else {
       switch (char) {
-        case ">": dx = 1; dy = 0; break;
-        case "<": dx = -1; dy = 0; break;
-        case "^": dx = 0; dy = -1; break;
-        case "v": dx = 0; dy = 1; break;
-        case "?": {
+        case '>': dx = 1; dy = 0; break;
+        case '<': dx = -1; dy = 0; break;
+        case '^': dx = 0; dy = -1; break;
+        case 'v': dx = 0; dy = 1; break;
+        case '?':
           const dirs = [[1,0], [-1,0], [0,1], [0,-1]];
-          const [newDx, newDy] = dirs[Math.floor(Math.random() * dirs.length)];
-          dx = newDx;
-          dy = newDy;
+          [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)];
           break;
-        }
-        case "+": {
+        case '+':
           const b = stack.pop() ?? 0;
           const a = stack.pop() ?? 0;
           stack.push(a + b);
           break;
-        }
-        case "-": {
-          const b = stack.pop() ?? 0;
-          const a = stack.pop() ?? 0;
-          stack.push(a - b);
+        case '-':
+          const d = stack.pop() ?? 0;
+          const c = stack.pop() ?? 0;
+          stack.push(c - d);
           break;
-        }
-        case "*": {
-          const b = stack.pop() ?? 0;
-          const a = stack.pop() ?? 0;
-          stack.push(a * b);
+        case '*':
+          const f = stack.pop() ?? 0;
+          const e = stack.pop() ?? 0;
+          stack.push(e * f);
           break;
-        }
-        case "/": {
-          const b = stack.pop() ?? 1;
-          const a = stack.pop() ?? 0;
-          stack.push(b === 0 ? 0 : Math.floor(a / b));
+        case '/':
+          const h = stack.pop() ?? 1;
+          const g = stack.pop() ?? 0;
+          stack.push(h === 0 ? 0 : Math.floor(g / h));
           break;
-        }
-        case "%": {
-          const b = stack.pop() ?? 1;
-          const a = stack.pop() ?? 0;
-          stack.push(b === 0 ? 0 : a % b);
-          break;
-        }
-        case "!":
-          stack.push(stack.pop() === 0 ? 1 : 0);
-          break;
-        case "`": {
-          const b = stack.pop() ?? 0;
-          const a = stack.pop() ?? 0;
-          stack.push(a > b ? 1 : 0);
-          break;
-        }
-        case ":":
-          stack.push(stack.length > 0 ? stack[stack.length - 1] : 0);
-          break;
-        case "\\":
-          if (stack.length >= 2) {
-            const a = stack.pop()!;
-            const b = stack.pop()!;
-            stack.push(a, b);
-          }
-          break;
-        case "$":
-          stack.pop();
-          break;
-        case ".":
-          output += (stack.pop() ?? 0).toString() + " ";
-          break;
-        case ",":
-          output += String.fromCharCode(stack.pop() ?? 0);
-          break;
-        case "#":
-          x += dx;
-          y += dy;
-          break;
-        case "p": {
-          const y2 = stack.pop() ?? 0;
-          const x2 = stack.pop() ?? 0;
-          const v = stack.pop() ?? 0;
-          if (y2 >= 0 && y2 < height && x2 >= 0 && x2 < width) {
-            grid[y2][x2] = String.fromCharCode(v);
-          }
-          break;
-        }
-        case "g": {
-          const y2 = stack.pop() ?? 0;
-          const x2 = stack.pop() ?? 0;
-          if (y2 >= 0 && y2 < height && x2 >= 0 && x2 < width) {
-            stack.push(grid[y2][x2].charCodeAt(0));
-          } else {
-            stack.push(0);
-          }
-          break;
-        }
         case '"':
           stringMode = true;
           break;
-        case " ":
+        case ':':
+          const val = stack.length > 0 ? stack[stack.length - 1] : 0;
+          stack.push(val);
+          break;
+        case '\\':
+          const val1 = stack.pop() ?? 0;
+          const val2 = stack.pop() ?? 0;
+          stack.push(val1, val2);
+          break;
+        case '$':
+          stack.pop();
+          break;
+        case '.':
+          output += (stack.pop() ?? 0).toString() + ' ';
+          break;
+        case ',':
+          output += String.fromCharCode(stack.pop() ?? 0);
+          break;
+        case '#':
+          x += dx;
+          y += dy;
+          break;
+        case 'p':
+          const py = stack.pop() ?? 0;
+          const px = stack.pop() ?? 0;
+          const v = stack.pop() ?? 0;
+          if (py >= 0 && py < height && px >= 0 && px < width) {
+            grid[py][px] = String.fromCharCode(v);
+          }
+          break;
+        case 'g':
+          const gy = stack.pop() ?? 0;
+          const gx = stack.pop() ?? 0;
+          if (gy >= 0 && gy < height && gx >= 0 && gx < width) {
+            stack.push(grid[gy][gx].charCodeAt(0));
+          } else {
+            stack.push(0);
+          }
           break;
         default:
           if (/[0-9]/.test(char)) {
@@ -393,16 +373,73 @@ function executeBefunge(code: string): string {
       }
     }
 
-    x = (x + dx + width) % width;
-    y = (y + dy + height) % height;
+    x += dx;
+    y += dy;
     steps++;
   }
 
-  if (steps >= MAX_STEPS) {
+  if (steps >= maxSteps) {
     throw new Error("Program exceeded maximum step limit");
   }
 
   return output;
+}
+
+// Assembly simulator with proper instruction handling
+function executeAssembly(code: string): string {
+  const registers = new Map<string, number>();
+  const memory = new Uint8Array(256);
+  let output = "";
+
+  // Initialize registers
+  ['eax', 'ebx', 'ecx', 'edx'].forEach(reg => registers.set(reg, 0));
+
+  const lines = code.split('\n').map(line => line.trim())
+    .filter(line => line && !line.startsWith(';'));
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const [instruction, ...args] = line.split(/[\s,]+/);
+
+    switch (instruction.toLowerCase()) {
+      case 'mov':
+        if (args.length === 2) {
+          const [dest, source] = args;
+          if (source.startsWith("'") && source.endsWith("'")) {
+            registers.set(dest, source.charCodeAt(1));
+          } else if (/^\d+$/.test(source)) {
+            registers.set(dest, parseInt(source));
+          } else if (registers.has(source)) {
+            registers.set(dest, registers.get(source)!);
+          }
+        }
+        break;
+      case 'int':
+        if (args[0] === '0x80') {
+          const syscall = registers.get('eax');
+          if (syscall === 4) { // write syscall
+            output += String.fromCharCode(registers.get('ebx')!);
+          }
+        }
+        break;
+      case 'add':
+        if (args.length === 2) {
+          const [dest, source] = args;
+          const value = /^\d+$/.test(source) ? parseInt(source) : registers.get(source) || 0;
+          registers.set(dest, (registers.get(dest) || 0) + value);
+        }
+        break;
+      case 'sub':
+        if (args.length === 2) {
+          const [dest, source] = args;
+          const value = /^\d+$/.test(source) ? parseInt(source) : registers.get(source) || 0;
+          registers.set(dest, (registers.get(dest) || 0) - value);
+        }
+        break;
+    }
+  }
+
+  return output || "Program completed with no output\n";
 }
 
 // Enhanced FALSE interpreter with stack operations and functions
@@ -495,49 +532,6 @@ function executeBinary(code: string): string {
   }
 }
 
-// Assembly simulation (basic x86-like instructions)
-function executeAssembly(code: string): string {
-  const registers = new Map<string, number>();
-  const memory = new Uint8Array(256);
-  let output = "";
-
-  // Initialize registers
-  ['eax', 'ebx', 'ecx', 'edx'].forEach(reg => registers.set(reg, 0));
-
-  const lines = code.split('\n').map(line => line.trim());
-
-  for (const line of lines) {
-    if (!line || line.startsWith(';')) continue;
-
-    const [instruction, ...args] = line.split(/[\s,]+/);
-
-    switch (instruction.toLowerCase()) {
-      case 'mov':
-        if (args.length === 2) {
-          const [dest, source] = args;
-          if (source.startsWith("'") && source.endsWith("'")) {
-            registers.set(dest, source.charCodeAt(1));
-          } else if (/^\d+$/.test(source)) {
-            registers.set(dest, parseInt(source));
-          } else {
-            registers.set(dest, registers.get(source) || 0);
-          }
-        }
-        break;
-      case 'int':
-        if (args[0] === '0x80') {
-          const syscall = registers.get('eax');
-          if (syscall === 4) { // write
-            const str = String.fromCharCode(registers.get('ebx') || 0);
-            output += str;
-          }
-        }
-        break;
-    }
-  }
-
-  return output || "Assembly execution completed\n";
-}
 
 // APL interpreter (basic operations)
 function executeAPL(code: string): string {
