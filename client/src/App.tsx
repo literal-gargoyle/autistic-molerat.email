@@ -5,7 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/Navbar";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
-import SharedCode from "@/pages/SharedCode";
+import Examples from "@/pages/Examples";
+import SharedPage from "@/pages/SharedPage";
+import ContactPage from "@/pages/ContactPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -13,7 +15,9 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
-      <Route path="/share/:id" component={SharedCode} />
+      <Route path="/examples" component={Examples} />
+      <Route path="/shared" component={SharedPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route component={NotFound} />
     </Switch>
   );
