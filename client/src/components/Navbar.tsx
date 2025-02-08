@@ -19,7 +19,7 @@ export default function Navbar() {
       <div className="container flex h-14 items-center justify-between max-w-screen-xl mx-auto px-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <img src="/attached_assets/molerat_logo-removebg-preview.png" alt="Autistic Molerat Logo" className="h-8 w-8" />
+            <img src="/static/molerat_logo-removebg-preview.png" alt="Autistic Molerat Logo" className="h-8 w-8" />
             <span className="font-bold text-lg">Autistic Molerat</span>
             <Badge variant="secondary" className="ml-2">BETA</Badge>
           </Link>
