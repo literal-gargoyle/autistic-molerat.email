@@ -10,14 +10,30 @@ export async function executeCode(language: string, code: string): Promise<strin
       return executeWhitespace(code);
     case "befunge":
       return executeBefunge(code);
-    case "cow":
-      return executeCow(code);
-    case "arnoldc":
-      return executeArnoldC(code);
-    case "hq9plus":
-      return executeHQ9Plus(code);
+    case "emojicode":
+      return executeEmojicode(code);
+    case "false":
+      return executeFalse(code);
+    case "binary":
+      return executeBinary(code);
+    case "assembly":
+      return executeAssembly(code);
+    case "apl":
+      return executeAPL(code);
+    case "cobol":
+      return executeCOBOL(code);
+    case "forth":
+      return executeForth(code);
+    case "lisp":
+      return executeLisp(code);
+    case "prolog":
+      return executeProlog(code);
+    case "haskell":
+      return executeHaskell(code);
+    case "sql":
+      return executeSQL(code);
     default:
-      return `Execution not implemented for ${language}\n\nCode:\n${code}`;
+      return `Language ${language} is view-only. Execution not implemented.\n\nCode:\n${code}`;
   }
 }
 
@@ -179,7 +195,7 @@ function executeBefunge(code: string): string {
           stack.push(a + b);
           break;
         }
-        case ".": 
+        case ".":
           output += (stack.pop() || 0).toString() + " ";
           break;
         case ",":
@@ -198,6 +214,137 @@ function executeBefunge(code: string): string {
     x = (x + dx + width) % width;
     y = (y + dy + height) % height;
   }
+
+  return output;
+}
+
+function executeEmojicode(code: string): string {
+  let output = "";
+  const lines = code.split("\n");
+
+  for (const line of lines) {
+    if (line.includes("😀")) {
+      const match = line.match(/🔤([^🔤]*)🔤/);
+      if (match) {
+        output += match[1] + "\n";
+      }
+    }
+  }
+
+  return output;
+}
+
+function executeFalse(code: string): string {
+  let output = "";
+  const stack: (number | string)[] = [];
+
+  for (let i = 0; i < code.length; i++) {
+    const char = code[i];
+
+    if (char === '"') {
+      let str = "";
+      i++;
+      while (i < code.length && code[i] !== '"') {
+        str += code[i];
+        i++;
+      }
+      output += str;
+    } else if (char === '$') {
+      const value = stack.pop();
+      if (value !== undefined) {
+        output += value;
+      }
+    }
+  }
+
+  return output;
+}
+
+function executeBinary(code: string): string {
+  const bytes = code.trim().split(/\s+/).map(bin => parseInt(bin, 2));
+  return bytes.map(byte => String.fromCharCode(byte)).join('');
+}
+
+function executeAssembly(code: string): string {
+  return "Assembly execution requires a runtime environment.\nCode preview:\n" + code;
+}
+
+function executeAPL(code: string): string {
+  let output = "";
+  const lines = code.split("\n");
+
+  for (const line of lines) {
+    if (line.includes("'")) {
+      const match = line.match(/'([^']*)'/) || ["", ""];
+      output += match[1] + "\n";
+    }
+  }
+
+  return output;
+}
+
+function executeCOBOL(code: string): string {
+  let output = "";
+  const lines = code.split("\n");
+
+  for (const line of lines) {
+    if (line.includes("DISPLAY")) {
+      const match = line.match(/"([^"]*)"/) || ["", ""];
+      output += match[1] + "\n";
+    }
+  }
+
+  return output;
+}
+
+function executeForth(code: string): string {
+  let output = "";
+  const lines = code.split("\n");
+
+  for (const line of lines) {
+    if (line.includes('."')) {
+      const match = line.match(/"([^"]*)"/) || ["", ""];
+      output += match[1] + "\n";
+    }
+  }
+
+  return output;
+}
+
+function executeLisp(code: string): string {
+  let output = "";
+  const match = code.match(/"([^"]*)"/) || ["", ""];
+  output = match[1];
+
+  return output;
+}
+
+function executeProlog(code: string): string {
+  let output = "";
+  const lines = code.split("\n");
+
+  for (const line of lines) {
+    if (line.includes("write")) {
+      const match = line.match(/'([^']*)'/) || ["", ""];
+      output += match[1] + "\n";
+    }
+  }
+
+  return output;
+}
+
+function executeHaskell(code: string): string {
+  let output = "";
+  const match = code.match(/"([^"]*)"/) || ["", ""];
+  output = match[1];
+
+  return output;
+}
+
+function executeSQL(code: string): string {
+  let output = "";
+  const match = code.match(/'([^']*)'/) || ["", ""];
+  output = match[1];
 
   return output;
 }
