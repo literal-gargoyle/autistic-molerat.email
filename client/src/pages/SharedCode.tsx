@@ -47,11 +47,10 @@ export default function SharedCode() {
 
       <Card className="p-0 overflow-hidden border-2">
         <CodeEditor
-          language={shared.language}
-          value={shared.code}
-          onChange={() => {}}
-          readOnly
-        />
+                  language={shared.language}
+                  value={shared.code}
+                  onChange={() => { } }
+                  readOnly code={""}        />
       </Card>
     </div>
   );

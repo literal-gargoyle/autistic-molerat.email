@@ -18,6 +18,7 @@ import { Play, Save, Share } from "lucide-react";
 import { motion } from "framer-motion";
 import { apiRequest } from "@/lib/queryClient";
 
+console.log("AUTISM TIME BABY🪇🪇")
 export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0].id);
   const [code, setCode] = useState("");
@@ -38,11 +39,26 @@ export default function Home() {
   }, [selectedLanguage]);
 
   const handleRun = async () => {
+    console.log("How fitting, this code has errors on the error lines.")
     try {
       const result = await executeCode(selectedLanguage, code);
       setOutput(result);
     } catch (error) {
-      setOutput(`Error: ${error.message}`);
+      if (error instanceof Error) {
+        setOutput(`Error: ${error.message}`);
+        toast({
+          variant: "destructive",
+          title: "Execution Error",
+          description: error.message
+        });
+      } else {
+        setOutput("An unknown error occurred");
+        toast({
+          variant: "destructive",
+          title: "Execution Error",
+          description: "An unknown error occurred"
+        });
+      }
       toast({
         variant: "destructive",
         title: "Execution Error",
@@ -156,8 +172,7 @@ export default function Home() {
               <CodeEditor
                 language={selectedLanguage}
                 value={code}
-                onChange={setCode}
-              />
+                onChange={setCode} code={""} readOnly={false}              />
             </Card>
           </motion.div>
 

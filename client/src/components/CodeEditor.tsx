@@ -5,6 +5,8 @@ import { languages } from "@/lib/languages";
 interface CodeEditorProps {
   language: string;
   value: string;
+  code: string;
+  readOnly: boolean;
   onChange: (value: string) => void;
 }
 

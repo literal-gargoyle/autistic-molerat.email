@@ -1,5 +1,4 @@
 export const languages = [
-  // Existing esoteric languages
   {
     id: "brainfuck",
     name: "Brainfuck",
@@ -266,4 +265,4 @@ HELLO`,
   }
 ];
 
-export const categories = [...new Set(languages.map(lang => lang.category))];
+export const categories = Array.from(new Set(languages.map(lang => lang.category)));

@@ -3,20 +3,17 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function About() {
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">About Esoteric Code Sandbox</h1>
       <Card>
         <CardContent className="prose dark:prose-invert pt-6">
+        <h1 className="text-3xl font-bold mb-6">About The Project:</h1>
           <p>
-            Welcome to the Esoteric Code Sandbox, a playground for exploring unusual
-            and historical programming languages. This project aims to preserve and
-            celebrate the diversity of programming languages, from the practical to
-            the peculiar.
+            This is a esoteric programming language (and basic language) playground where you can share your code with others.
           </p>
           
           <h2>Featured Languages</h2>
           <ul>
-            <li>Esoteric Languages: Brainfuck, Ook!, LOLCODE, Whitespace, and more</li>
-            <li>Historical Languages: COBOL, FORTRAN, Assembly</li>
+            <li>Esoteric Languages: Brainfuck, Ook!, LOLCODE, Whitespace, Befunge, EmojiCode, and False.</li>
+            <li>Historical Languages: Binary, Assembly, APL, FORTH, LISP,</li>
             <li>Modern Languages: SQL, Haskell, Prolog</li>
           </ul>
 
@@ -32,7 +29,7 @@ export default function About() {
           <p>
             This is an open-source project dedicated to preserving programming
             language history and encouraging experimentation with different
-            programming paradigms.
+            programming paradigms. Check out the github repository to contribute! (it's in the contact section!)
           </p>
         </CardContent>
       </Card>
